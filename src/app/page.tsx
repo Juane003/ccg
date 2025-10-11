@@ -1,26 +1,26 @@
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Separator from "@/components/Separator";
 import { Button } from "@/components/ui/button";
-import Post from "@/components/post/Post";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { Post as PostType } from "@/types/post";
+import { Suspense } from "react";
+import { getPosts } from "@/actions/post";
+import tryCatch from "@/lib/tryCatch";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import PostList from "@/components/post/PostList";
 
-const post: PostType = {
-  hashtags: ["test", "test2"],
-  imageUrl: "https://via.placeholder.com/150",
-  id: "1",
-  userId: "1",
-  title: "Test Post",
-  content: "Test Content",
-  platform: ["twitter", "linkedin"],
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  draft: false,
-  publishedAt: new Date(),
-};
+export default async function Home() {
+  const userId = (await auth.api.getSession({ headers: await headers() }))?.user
+    ?.id;
 
-export default function Home() {
+  if (!userId) {
+    redirect("/auth");
+  }
+
+  const postsPromise = tryCatch(getPosts(userId));
+
   return (
     <ProtectedRoute>
       <section className="flex items-center justify-between">
@@ -30,7 +30,7 @@ export default function Home() {
             Generate and manage your social media content
           </p>
         </div>
-        <Link href="/new-post" className="flex items-center gap-2">
+        <Link href="/post" className="flex items-center gap-2">
           <Button variant="ghost">
             <PlusIcon className="w-4 h-4" />
             New Post
@@ -38,7 +38,9 @@ export default function Home() {
         </Link>
       </section>
       <Separator />
-      <Post post={post} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <PostList postsPromise={postsPromise} />
+      </Suspense>
     </ProtectedRoute>
   );
 }

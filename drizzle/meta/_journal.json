@@ -22,6 +22,13 @@
       "when": 1760161476039,
       "tag": "0002_ambiguous_tinkerer",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1760223238678,
+      "tag": "0003_skinny_sunspot",
+      "breakpoints": true
     }
   ]
 }

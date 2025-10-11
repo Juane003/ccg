@@ -1,4 +1,8 @@
-import { Post as PostType } from "@/types/post";
+import { PencilIcon, TrashIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Post as PostType } from "@/types/post";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -6,10 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { cn } from "@/lib/utils";
-import { PencilIcon, TrashIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { DeletePostModal } from "./DeletePostModal";
 
 const BADGE_COLORS = {
   Published: "bg-emerald-400",
@@ -18,6 +19,7 @@ const BADGE_COLORS = {
 
 const Post = ({ post }: { post: PostType }) => {
   const draftStatus = post.draft ? "Draft" : "Published";
+  console.log(post);
   return (
     <Card>
       <CardHeader>
@@ -32,9 +34,7 @@ const Post = ({ post }: { post: PostType }) => {
             <Button variant="ghost">
               <PencilIcon />
             </Button>
-            <Button variant="ghost">
-              <TrashIcon />
-            </Button>
+            <DeletePostModal postId={post.id} />
           </div>
         </CardTitle>
         <CardDescription className="capitalize">

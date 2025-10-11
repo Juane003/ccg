@@ -1,5 +1,5 @@
+import type { PropsWithChildren } from "react";
 import { cn } from "@/lib/utils";
-import { PropsWithChildren } from "react";
 
 type GradientClassNames = {
   from: `from-${string}`;
@@ -27,7 +27,7 @@ const GradientText = ({
         gradientClassNames.from,
         gradientClassNames.via,
         gradientClassNames.to,
-        className
+        className,
       )}
     >
       {children}

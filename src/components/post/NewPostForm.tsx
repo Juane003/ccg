@@ -36,25 +36,24 @@ const NewPostForm = () => {
     const onPlatformClick = () => handlePlatformClick(platform);
 
     return (
-      <Badge key={platform} variant="outline">
-        <button
-          type="button"
-          className={cn(
-            "capitalize",
-            isSelected ? "text-primary" : "text-muted-foreground"
-          )}
-          onClick={onPlatformClick}
-        >
-          {platform}
-        </button>
-      </Badge>
+      <button
+        key={platform}
+        type="button"
+        className={cn(
+          "capitalize",
+          isSelected ? "text-primary" : "text-muted-foreground",
+        )}
+        onClick={onPlatformClick}
+      >
+        <Badge variant="outline">{platform}</Badge>
+      </button>
     );
   };
 
   return (
     <form action={formAction}>
-      <div className="flex items-center justify-between gap-4 h-full">
-        <div className="w-1/2 space-y-4">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-full">
+        <div className="w-full md:w-1/2 space-y-4">
           <ImageInput
             className={"h-84"}
             image={image}
@@ -73,7 +72,7 @@ const NewPostForm = () => {
             />
           </InputContainer>
         </div>
-        <div className="space-y-2 w-1/2">
+        <div className="space-y-2 w-full md:w-1/2">
           <InputContainer>
             <EnhanceWithAiLabel text="Title" id="title" />
             <Input

@@ -6,6 +6,7 @@ const resend = new Resend(process.env.RESEND_TOKEN);
 interface SendMagicLinkParams {
   data: {
     email: string;
+
     url: string;
   };
 }

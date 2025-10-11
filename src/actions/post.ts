@@ -2,6 +2,7 @@
 
 import db from "@/db/db";
 import { posts } from "@/db/schema/post";
+import tryCatch from "@/lib/tryCatch";
 import { eq } from "drizzle-orm/sqlite-core/expressions";
 import { z } from "zod";
 
@@ -21,10 +22,10 @@ const createPostSchema = z.object({
   content: z.string(),
   platforms: z.array(platformEnum),
   userId: z.string(),
-  hashtags: z.string(),
+  hashtags: z.array(z.string()),
 });
 
-const createPost = async (initialData: any, formData: FormData) => {
+const createPost = async (_initialData: unknown, formData: FormData) => {
   const parsedPlatforms = formData.get("platforms")?.toString().split(",");
 
   const validatedData = createPostSchema.safeParse({
@@ -52,6 +53,7 @@ const createPost = async (initialData: any, formData: FormData) => {
       content,
       platform: platforms,
       userId,
+      hashtags,
     })
     .returning();
 
@@ -97,4 +99,26 @@ const updatePost = async (formData: FormData) => {
     data: post,
   };
 };
-export { updatePost, createPost };
+
+const getPosts = async (userId: string) => {
+  return await db.select().from(posts).where(eq(posts.userId, userId));
+};
+
+const deletePost = async (formData: FormData) => {
+  const id = formData.get("id");
+  console.log({ id });
+  const validatedData = z.string().safeParse(id);
+
+  if (!validatedData.success) {
+    return {
+      error: validatedData.error.message,
+      data: null,
+    };
+  }
+
+  const postId = validatedData.data;
+
+  return await tryCatch(db.delete(posts).where(eq(posts.id, postId)));
+};
+
+export { updatePost, createPost, getPosts, deletePost };

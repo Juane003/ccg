@@ -8,9 +8,7 @@ const NewPostPage = () => {
     <ProtectedRoute>
       <PostLayoutHeader />
       <Separator />
-      <div>
-        <NewPostForm />
-      </div>
+      <NewPostForm />
     </ProtectedRoute>
   );
 };

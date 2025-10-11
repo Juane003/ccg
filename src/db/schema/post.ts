@@ -15,10 +15,12 @@ const posts = sqliteTable("posts", {
     .notNull(),
   draft: integer("draft", { mode: "boolean" }).default(true).notNull(),
   publishedAt: integer("published_at", { mode: "timestamp_ms" }),
-  platform: text({
-    enum: ["twitter", "linkedin", "instagram", "facebook"],
-  }).$type<("twitter" | "linkedin" | "instagram" | "facebook")[]>(),
-  hashtags: text("hashtags").$type<string[]>(),
+  platform: text("platform", {
+    mode: "json",
+  })
+    .$type<("twitter" | "linkedin" | "instagram" | "facebook")[]>()
+    .default([]),
+  hashtags: text("hashtags", { mode: "json" }).$type<string[]>().default([]),
   imageUrl: text("image_url"),
 });
 

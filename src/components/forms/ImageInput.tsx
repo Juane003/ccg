@@ -24,7 +24,7 @@ const ImageInput = ({ onImageChange, image, className }: ImageInputProps) => {
         <div
           className={cn(
             "h-full w-full relative flex flex-col items-center justify-center gap-2 border border-dashed border-primary/50 rounded-md p-8",
-            className
+            className,
           )}
         >
           <button
@@ -42,7 +42,7 @@ const ImageInput = ({ onImageChange, image, className }: ImageInputProps) => {
         <div
           className={cn(
             "p-4 w-full h-full relative rounded-md border",
-            className
+            className,
           )}
         >
           <Button
