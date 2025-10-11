@@ -8,6 +8,20 @@
       "when": 1760143448917,
       "tag": "0000_needy_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1760150253690,
+      "tag": "0001_yielding_oracle",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1760161476039,
+      "tag": "0002_ambiguous_tinkerer",
+      "breakpoints": true
     }
   ]
 }

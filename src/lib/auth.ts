@@ -13,8 +13,8 @@ export const auth = betterAuth({
   }),
   plugins: [
     magicLink({
-      sendMagicLink: async ({ email, token, url }, request) => {
-        await sendMagicLink({ data: { email, url, token }, request });
+      sendMagicLink: async ({ email, url }) => {
+        await sendMagicLink({ data: { email, url } });
       },
     }),
     nextCookies(),

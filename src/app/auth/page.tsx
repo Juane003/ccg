@@ -1,7 +1,7 @@
 import LoginForm from "@/components/auth/LoginForm";
 import GradientText from "@/components/GradientText";
 
-const Login = () => {
+const AuthPage = () => {
   return (
     <div className="flex items-center justify-center min-h-screen w-full">
       <div className="border border-primary/30 rounded-xl p-8 max-w-sm w-full">
@@ -26,4 +26,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default AuthPage;

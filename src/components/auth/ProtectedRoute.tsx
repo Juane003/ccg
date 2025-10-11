@@ -7,6 +7,7 @@ const ProtectedRoute = async ({ children }: PropsWithChildren) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session) {
     redirect("/auth");
   }

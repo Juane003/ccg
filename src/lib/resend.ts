@@ -7,12 +7,10 @@ interface SendMagicLinkParams {
   data: {
     email: string;
     url: string;
-    token: string;
   };
-  request?: Request;
 }
 
-const sendMagicLink = async ({ data, request }: SendMagicLinkParams) => {
+const sendMagicLink = async ({ data }: SendMagicLinkParams) => {
   const { email, url } = data;
   await resend.emails.send({
     from: "Content Creator App <onboarding@emiliorivero.com>",
