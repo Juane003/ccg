@@ -4,11 +4,13 @@ import { Button } from "../ui/button";
 import { Upload, XIcon } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface ImageInputProps {
   onImageChange: (image: File | null) => void;
   image: File | null;
   className?: string;
+  defaultValue?: File | null;
 }
 
 const ImageInput = ({ onImageChange, image, className }: ImageInputProps) => {
@@ -52,7 +54,10 @@ const ImageInput = ({ onImageChange, image, className }: ImageInputProps) => {
           >
             <XIcon className="w-6 h-6" />
           </Button>
-          <img
+
+          <Image
+            width={640}
+            height={640}
             className="object-cover aspect-video"
             src={URL.createObjectURL(image)}
             alt="Uploaded"

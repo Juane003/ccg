@@ -1,10 +1,14 @@
 "use server";
 
-import db from "@/db/db";
-import { posts } from "@/db/schema/post";
-import tryCatch from "@/lib/tryCatch";
-import { eq } from "drizzle-orm/sqlite-core/expressions";
+import { redirect } from "next/navigation";
 import { z } from "zod";
+import tryCatch from "@/lib/tryCatch";
+import {
+  createPost,
+  deletePost,
+  updatePost,
+} from "@/repository/post.repository";
+import { revalidatePath } from "next/cache";
 
 const platformEnum = z.enum(["twitter", "linkedin", "instagram", "facebook"]);
 
@@ -15,6 +19,7 @@ const updatePostSchema = z.object({
   platform: z.array(platformEnum).optional(),
   draft: z.boolean().optional(),
   publishedAt: z.date().optional(),
+  userId: z.string(),
 });
 
 const createPostSchema = z.object({
@@ -25,15 +30,21 @@ const createPostSchema = z.object({
   hashtags: z.array(z.string()),
 });
 
-const createPost = async (_initialData: unknown, formData: FormData) => {
+const createPostAction = async (_initialData: unknown, formData: FormData) => {
   const parsedPlatforms = formData.get("platforms")?.toString().split(",");
+  const parsedHashtags = formData.get("hashtags")?.toString().split(" ");
+
+  console.log({
+    parsedPlatforms,
+    parsedHashtags,
+  });
 
   const validatedData = createPostSchema.safeParse({
     title: formData.get("title"),
     content: formData.get("content"),
     platforms: parsedPlatforms,
     userId: formData.get("userId"),
-    hashtags: formData.get("hashtags"),
+    hashtags: parsedHashtags,
   });
 
   if (!validatedData.success) {
@@ -45,33 +56,32 @@ const createPost = async (_initialData: unknown, formData: FormData) => {
 
   const { title, content, platforms, userId, hashtags } = validatedData.data;
 
-  const post = await db
-    .insert(posts)
-    .values({
-      id: crypto.randomUUID(),
-      title,
-      content,
-      platform: platforms,
-      userId,
-      hashtags,
-    })
-    .returning();
-
-  return {
-    error: null,
-    data: post,
-  };
+  await createPost({
+    id: crypto.randomUUID(),
+    title,
+    content,
+    platform: platforms,
+    userId,
+    hashtags,
+  });
+  redirect("/");
 };
 
-const updatePost = async (formData: FormData) => {
-  const validatedData = updatePostSchema.safeParse({
+const updatePostAction = async (_initialData: unknown, formData: FormData) => {
+  const data = {
     id: formData.get("id"),
     title: formData.get("title"),
     content: formData.get("content"),
-    platform: formData.get("platform"),
-    draft: formData.get("draft"),
-    publishedAt: formData.get("publishedAt"),
-  });
+    platform: formData.get("platforms")?.toString().split(",") || [],
+    draft: formData.get("draft") ? Boolean(formData.get("draft")) : undefined,
+    publishedAt: formData.get("publishedAt") ?? undefined,
+    userId: formData.get("userId"),
+  };
+
+  console.log({ data });
+  const validatedData = updatePostSchema.safeParse(data);
+
+  console.log({ validatedData });
 
   if (!validatedData.success) {
     return {
@@ -80,45 +90,40 @@ const updatePost = async (formData: FormData) => {
     };
   }
 
-  const { id, title, content, platform, draft, publishedAt } =
-    validatedData.data;
+  const { id } = validatedData.data;
 
-  const post = await db
-    .update(posts)
-    .set({
-      title,
-      content,
-      platform,
-      draft,
-      publishedAt,
-    })
-    .where(eq(posts.id, id));
-
-  return {
-    error: null,
-    data: post,
-  };
+  await updatePost(id, validatedData.data);
+  revalidatePath("/");
+  redirect(`/`);
 };
 
-const getPosts = async (userId: string) => {
-  return await db.select().from(posts).where(eq(posts.userId, userId));
-};
-
-const deletePost = async (formData: FormData) => {
+const deletePostAction = async (formData: FormData) => {
   const id = formData.get("id");
-  console.log({ id });
+
   const validatedData = z.string().safeParse(id);
 
   if (!validatedData.success) {
     return {
-      error: validatedData.error.message,
+      error: validatedData.error,
       data: null,
     };
   }
 
   const postId = validatedData.data;
 
-  return await tryCatch(db.delete(posts).where(eq(posts.id, postId)));
+  const { data, error } = await tryCatch(deletePost(postId));
+
+  if (error) {
+    return {
+      error: error,
+      data: null,
+    };
+  }
+
+  return {
+    error: null,
+    data,
+  };
 };
 
-export { updatePost, createPost, getPosts, deletePost };
+export { updatePostAction, deletePostAction, createPostAction };

@@ -2,13 +2,25 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import * as z from "zod";
 
 const loginSchema = z.object({
   email: z.email(),
 });
 
-const loginAction = async (initialData: any, formData: FormData) => {
+const getUserId = async () => {
+  const userId = (await auth.api.getSession({ headers: await headers() }))?.user
+    ?.id;
+
+  if (!userId) {
+    redirect("/auth");
+  }
+
+  return userId;
+};
+
+const loginAction = async (_initialData: unknown, formData: FormData) => {
   const email = formData.get("email");
   const validatedData = loginSchema.safeParse({ email });
 
@@ -41,4 +53,4 @@ const loginAction = async (initialData: any, formData: FormData) => {
   };
 };
 
-export default loginAction;
+export { loginAction, getUserId };

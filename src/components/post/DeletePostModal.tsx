@@ -10,20 +10,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
-import { deletePost } from "@/actions/post";
+import { deletePost } from "@/repository/post.repository";
 import { Button } from "../ui/button";
 import { revalidatePath } from "next/cache";
+import tryCatch from "@/lib/tryCatch";
 
 const DeletePostModal = ({ postId }: { postId: string }) => {
-  const deletePostAction = async (formData: FormData) => {
+  const deletePostAction = async () => {
     "use server";
-    formData.append("id", postId);
-    console.log("called");
-    const { data, error } = await deletePost(formData);
-    if (error) {
-      console.error(error);
+    const { error } = await tryCatch(deletePost(postId));
+    if (!error) {
+      revalidatePath("/");
     }
-    revalidatePath("/");
   };
 
   return (

@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import { DeletePostModal } from "./DeletePostModal";
+import Link from "next/link";
 
 const BADGE_COLORS = {
   Published: "bg-emerald-400",
@@ -19,7 +20,7 @@ const BADGE_COLORS = {
 
 const Post = ({ post }: { post: PostType }) => {
   const draftStatus = post.draft ? "Draft" : "Published";
-  console.log(post);
+
   return (
     <Card>
       <CardHeader>
@@ -31,8 +32,10 @@ const Post = ({ post }: { post: PostType }) => {
             <span className="text-xl font-bold">{post.title}</span>
           </div>
           <div className="space-x-2">
-            <Button variant="ghost">
-              <PencilIcon />
+            <Button asChild variant="ghost">
+              <Link href={`/post/${post.id}`}>
+                <PencilIcon />
+              </Link>
             </Button>
             <DeletePostModal postId={post.id} />
           </div>

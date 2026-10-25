@@ -1,7 +1,16 @@
-export type TryCatchResult<T, E = Error> = {
-  data: T | null;
-  error: E | null;
+type TryCatchSuccess<T> = {
+  data: T;
+  error: null;
 };
+
+type TryCatchError<E = Error> = {
+  data: null;
+  error: E;
+};
+
+export type TryCatchResult<T, E = Error> =
+  | TryCatchSuccess<T>
+  | TryCatchError<E>;
 
 const tryCatch = async <T, E = Error>(
   promise: Promise<T>,
@@ -9,7 +18,7 @@ const tryCatch = async <T, E = Error>(
   try {
     const data = await promise;
     return { data, error: null };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return { data: null, error: error as E };
   }
 };

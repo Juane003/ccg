@@ -1,6 +1,6 @@
 "use client";
 
-import loginAction from "@/actions/login";
+import { loginAction } from "@/actions/login";
 import SubmitButton from "../forms/SubmitButton";
 import { Input } from "../ui/input";
 import { useActionState } from "react";

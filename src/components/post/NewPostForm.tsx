@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { use, useActionState, useState } from "react";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
@@ -10,23 +10,37 @@ import { Label } from "../ui/label";
 import InputContainer from "../forms/InputContainer";
 import EnhanceWithAiLabel from "../forms/EnhanceWithAiLabel";
 import SubmitButton from "../forms/SubmitButton";
-import { createPost } from "@/actions/post";
+import { createPostAction, updatePostAction } from "@/actions/post";
 import { authClient } from "@/lib/authClient";
-import { Platform } from "@/types/post";
+import type { Post as PostType, Platform } from "@/types/post";
+import type { TryCatchResult } from "@/lib/tryCatch";
 
 const PLATFORMS: Platform[] = ["twitter", "linkedin", "instagram", "facebook"];
 
-const NewPostForm = () => {
+const NewPostForm = ({
+  postPromise,
+}: {
+  postPromise?: Promise<TryCatchResult<PostType | undefined>>;
+}) => {
+  const { data: initialData } = postPromise
+    ? use(postPromise)
+    : { data: undefined };
   const { data: session } = authClient.useSession();
-  const [state, formAction] = useActionState(createPost, null);
-  const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [image, setImage] = useState<File | null>(null);
+  const [createPostState, createPost] = useActionState(createPostAction, null);
+  const [updatePostState, updatePost] = useActionState(updatePostAction, null);
+  const [platforms, setPlatforms] = useState<Platform[]>(
+    initialData?.platform || [],
+  );
+  const [image, setImage] = useState<File | null>(
+    initialData?.imageUrl ? new File([], initialData.imageUrl) : null,
+  );
 
   const handlePlatformClick = (platform: Platform) => {
     setPlatforms((prev) => {
       if (prev.includes(platform)) {
         return prev.filter((p) => p !== platform);
       }
+
       return [...prev, platform];
     });
   };
@@ -36,22 +50,22 @@ const NewPostForm = () => {
     const onPlatformClick = () => handlePlatformClick(platform);
 
     return (
-      <button
-        key={platform}
-        type="button"
-        className={cn(
-          "capitalize",
-          isSelected ? "text-primary" : "text-muted-foreground",
-        )}
-        onClick={onPlatformClick}
-      >
-        <Badge variant="outline">{platform}</Badge>
+      <button key={platform} type="button" onClick={onPlatformClick}>
+        <Badge
+          className={cn(
+            "capitalize",
+            isSelected ? "text-primary" : "text-muted-foreground",
+          )}
+          variant="outline"
+        >
+          {platform}
+        </Badge>
       </button>
     );
   };
 
   return (
-    <form action={formAction}>
+    <form action={initialData ? updatePost : createPost}>
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 h-full">
         <div className="w-full md:w-1/2 space-y-4">
           <ImageInput
@@ -69,6 +83,7 @@ const NewPostForm = () => {
               name="hashtags"
               required
               className="resize-none"
+              defaultValue={initialData?.hashtags?.join(", ")}
             />
           </InputContainer>
         </div>
@@ -81,6 +96,7 @@ const NewPostForm = () => {
               name="title"
               required
               id="title"
+              defaultValue={initialData?.title}
             />
           </InputContainer>
           <InputContainer>
@@ -91,6 +107,7 @@ const NewPostForm = () => {
               name="content"
               required
               className="resize-none h-48"
+              defaultValue={initialData?.content}
             />
           </InputContainer>
           <InputContainer>
@@ -100,10 +117,16 @@ const NewPostForm = () => {
         </div>
         <input type="hidden" name="userId" value={session?.user.id || ""} />
         <input type="hidden" name="platforms" value={platforms} />
+        <input type="hidden" name="id" value={initialData?.id} />
       </div>
-      {state?.error && <p className="text-red-500">{state.error}</p>}
+      {createPostState?.error && (
+        <p className="text-red-500">{createPostState.error}</p>
+      )}
+      {updatePostState?.error && (
+        <p className="text-red-500">{updatePostState.error}</p>
+      )}
       <SubmitButton className="w-full mt-4" variant="outline" type="submit">
-        Create Post
+        {initialData ? "Update Post" : "Create Post"}
       </SubmitButton>
     </form>
   );

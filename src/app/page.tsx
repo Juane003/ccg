@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { getPosts } from "@/actions/post";
+import { getPosts } from "@/repository/post.repository";
 import tryCatch from "@/lib/tryCatch";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
